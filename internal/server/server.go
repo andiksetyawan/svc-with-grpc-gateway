@@ -25,8 +25,7 @@ import (
 )
 
 type server struct {
-	mux        http.Handler
-	grpcServer *grpc.Server
+	handler http.Handler
 
 	stopPusherMetricsFn      observability.StopPusherFunc
 	shutdownTracerExporterFn observability.ShutDownFunc
@@ -61,13 +60,13 @@ func NewServer() *server {
 		return nil
 	}
 
-	mux := router.NewRouter()
 	//adding custom route http1
+	mux := router.NewRouter()
 	mux.Handle("/", gwMux)
 
+	handlerAdapter := middleware.GrpcHttpMiddleware(grpcServer, otelhttp.NewHandler(mux, "svc-with-grpc-gateway"))
 	return &server{
-		mux:                      mux,
-		grpcServer:               grpcServer,
+		handler:                  handlerAdapter,
 		stopPusherMetricsFn:      stopPusher,
 		shutdownTracerExporterFn: shutDownTracer,
 	}
@@ -79,7 +78,7 @@ func (s *server) Run() {
 
 	serv := http.Server{
 		Addr:    config.Address,
-		Handler: middleware.GrpcHttpMiddleware(s.grpcServer, otelhttp.NewHandler(s.mux, "svc-with-grpc-gateway")),
+		Handler: s.handler,
 	}
 
 	go func() {
