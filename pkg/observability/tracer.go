@@ -44,7 +44,7 @@ func InitTracerProvider(otelCollectorURL, serviceName string, insecure bool) Shu
 		),
 	)
 	if err != nil {
-		log.Error().Err(err).Msgf("could not set resources: ", err)
+		log.Error().Err(err).Msgf("could not set resources: %v", err)
 	}
 
 	otel.SetTracerProvider(
