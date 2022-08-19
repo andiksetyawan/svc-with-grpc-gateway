@@ -1,5 +1,5 @@
 # svc-with-grpc-gateway
-A simple grpc+http1 service using grpc-gateway and listening on the same port.
+A simple grpc+http1 service using [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) and listening on the same port.
 - [Installation](#installation)
 - [Usage](#usage)
 - [Documentation](#documentation)
@@ -9,7 +9,7 @@ A simple grpc+http1 service using grpc-gateway and listening on the same port.
 ### Requirements
 
 1. [Go](https://golang.org/doc/install) 1.16+
-2. [Open Telemetry Collector](https://opentelemetry.io/docs/collector/getting-started/) Tracer & metrics collector
+2. [Open Telemetry Collector](https://opentelemetry.io/docs/collector/getting-started/), Tracer & metrics collector
 3. [Docker](https://docs.docker.com/engine/install/), used for testing with [testcontainer](https://www.testcontainers.org/) 
 4. [Buf](https://docs.buf.build/introduction) for generating the grpc stubs
 5. [protoc-gen-go](#), [protoc-gen-go-grpc](%), [](),
@@ -30,7 +30,7 @@ OTLP_COLLECTOR_URL=localhost:4317
  go mod tidy
 ```
 
-After all installed properly, because this project we using opentelemetry (jaeger + prometheus) for tracing and metrics, Run otelcollector, jaeger and prometheus server using docker-compose:
+After all installed properly, because this project we use opentelemetry collector (jaeger + prometheus) for tracing and metrics, so Run the otelcollector, jaeger and prometheus servers using docker-compose:
 
 ```docker-compose -f deploy/docker-compose/docker-compose.yaml up```
 
