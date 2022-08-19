@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package user.v1;
+
+option go_package = "svc-with-grpc-gateway/api/v1;svcUserV1";
+
+import "google/api/annotations.proto";
+
+message CreateRequest {
+  string name = 1;
+}
+
+message CreateResponse {
+  bool error = 1;
+  string message = 2;
+}
+
+service UserService {
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/user.v1.UserService/Create"
+      body: "*"
+    };
+  }
+}
