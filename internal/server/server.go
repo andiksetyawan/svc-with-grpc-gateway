@@ -36,8 +36,7 @@ func NewServer() *server {
 	config.Init()
 	//metrics & tracer init
 	stopPusher := observability.InitMetricProvider(config.App.OtlpCollectorUrl)
-	shutDownTracer := observability.InitTracerProvider(config.App.OtlpCollectorUrl, config.App.ServiceName, true)
-
+	shutDownTracer := observability.InitTracerProvider(config.App.OtlpCollectorUrl, config.App.ServiceName, config.App.InsecureOtlpCollector)
 	db := store.NewSQLLite()
 	userRepo := repository.NewUserRepository(db)
 	userSvc := service.NewUserService(userRepo)

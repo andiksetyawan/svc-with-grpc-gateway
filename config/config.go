@@ -9,7 +9,7 @@ type configs struct {
 	ServiceName           string `env:"SERVICE_NAME" yaml:"service_name" env-default:"svc-with-grpc-gateway"`
 	Address               string `env:"ADDRESS" yaml:"address" env-default:":8080"`
 	OtlpCollectorUrl      string `env:"OTLP_COLLECTOR_URL" yaml:"otlp_collector_url" env-default:"localhost:4317"`
-	InsecureOtlpCollector string `env:"INSECURE_OTLP_COLLECTOR" yaml:"insecure_otlp_collector" env-default:"true"`
+	InsecureOtlpCollector bool   `env:"INSECURE_OTLP_COLLECTOR" yaml:"insecure_otlp_collector" env-default:"true"`
 }
 
 var App configs
