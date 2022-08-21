@@ -17,10 +17,7 @@ import (
 	"svc-with-grpc-gateway/config"
 	"svc-with-grpc-gateway/internal/handler"
 	"svc-with-grpc-gateway/internal/middleware"
-	"svc-with-grpc-gateway/internal/repository"
 	"svc-with-grpc-gateway/internal/router"
-	"svc-with-grpc-gateway/internal/service"
-	"svc-with-grpc-gateway/internal/store"
 	"svc-with-grpc-gateway/pkg/observability"
 )
 
@@ -37,17 +34,14 @@ func NewServer() *server {
 	//metrics & tracer init
 	stopPusher := observability.InitMetricProvider(config.App.OtlpCollectorUrl)
 	shutDownTracer := observability.InitTracerProvider(config.App.OtlpCollectorUrl, config.App.ServiceName, config.App.InsecureOtlpCollector)
-	db := store.NewSQLLite()
-	userRepo := repository.NewUserRepository(db)
-	userSvc := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userSvc)
+	userHandlerServer := InitializedUserServiceHandlerServer()
 
 	//register grpc
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()),
 		grpc.StreamInterceptor(otelgrpc.StreamServerInterceptor()),
 	)
-	svcUserV1.RegisterUserServiceServer(grpcServer, userHandler)
+	svcUserV1.RegisterUserServiceServer(grpcServer, userHandlerServer)
 
 	//register grpc-health
 	grpcHealthHandler := handler.NewHealthCheckServerHandler()
@@ -55,7 +49,7 @@ func NewServer() *server {
 
 	//register grpc-gateway
 	gwMux := runtime.NewServeMux()
-	err := svcUserV1.RegisterUserServiceHandlerServer(context.Background(), gwMux, userHandler)
+	err := svcUserV1.RegisterUserServiceHandlerServer(context.Background(), gwMux, userHandlerServer)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 		return nil
@@ -83,6 +77,7 @@ func (s *server) Run() {
 	}
 
 	go func() {
+		log.Debug().Msgf("listening and serving on %s", config.App.Address)
 		err := serv.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatal().Msg(err.Error())

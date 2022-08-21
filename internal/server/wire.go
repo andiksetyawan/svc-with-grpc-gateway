@@ -18,15 +18,10 @@ var userSets = wire.NewSet(
 	handler.NewUserHandler,
 )
 
-func InitializedServer() svcUserV1.UserServiceServer {
+func InitializedUserServiceHandlerServer() svcUserV1.UserServiceServer {
 	wire.Build(
 		store.NewSQLLite,
 		userSets,
-		//grpc.NewServer,
-		////wire.Bind(new(http.Handler), new(*runtime.ServeMux)),
-		//runtime.NewServeMux,
-		////wire.Bind(new(*runtime.ServeMux), new(http.Handler)),
-		//middleware.GrpcHttpMiddleware,
 	)
 	return nil
 }

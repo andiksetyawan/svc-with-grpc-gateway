@@ -17,7 +17,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitializedServer() svcUserV1.UserServiceServer {
+func InitializedUserServiceHandlerServer() svcUserV1.UserServiceServer {
 	db := store.NewSQLLite()
 	iUserRepository := repository.NewUserRepository(db)
 	iUserService := service.NewUserService(iUserRepository)
