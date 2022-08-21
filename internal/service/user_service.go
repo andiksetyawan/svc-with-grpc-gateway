@@ -23,7 +23,7 @@ func NewUserService(userRepository repository.IUserRepository) IUserService {
 
 func (u *userService) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
 	//Tracer
-	_, span := otel.Tracer(config.ServiceName).Start(ctx, "service.user.Create")
+	_, span := otel.Tracer(config.App.ServiceName).Start(ctx, "service.user.Create")
 	defer span.End()
 
 	//TODO business logic

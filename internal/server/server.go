@@ -32,9 +32,11 @@ type server struct {
 }
 
 func NewServer() *server {
+	//init config
+	config.Init()
 	//metrics & tracer init
-	stopPusher := observability.InitMetricProvider(config.OtlpCollectorUrl)
-	shutDownTracer := observability.InitTracerProvider(config.OtlpCollectorUrl, config.ServiceName, true)
+	stopPusher := observability.InitMetricProvider(config.App.OtlpCollectorUrl)
+	shutDownTracer := observability.InitTracerProvider(config.App.OtlpCollectorUrl, config.App.ServiceName, true)
 
 	db := store.NewSQLLite()
 	userRepo := repository.NewUserRepository(db)
@@ -77,7 +79,7 @@ func (s *server) Run() {
 	signal.Notify(c, os.Interrupt)
 
 	serv := http.Server{
-		Addr:    config.Address,
+		Addr:    config.App.Address,
 		Handler: s.handler,
 	}
 
