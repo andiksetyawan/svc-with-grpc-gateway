@@ -22,7 +22,7 @@ import (
 )
 
 type server struct {
-	handler http.Handler
+	server http.Server
 
 	stopPusherMetricsFn      observability.StopPusherFunc
 	shutdownTracerExporterFn observability.ShutDownFunc
@@ -61,7 +61,11 @@ func NewServer() *server {
 
 	handlerAdapter := middleware.GrpcHttpMiddleware(grpcServer, otelhttp.NewHandler(mux, "svc-with-grpc-gateway"))
 	return &server{
-		handler:                  handlerAdapter,
+		server: http.Server{
+			Addr:    config.App.Address,
+			Handler: handlerAdapter,
+		},
+
 		stopPusherMetricsFn:      stopPusher,
 		shutdownTracerExporterFn: shutDownTracer,
 	}
@@ -71,14 +75,9 @@ func (s *server) Run() {
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)
 
-	serv := http.Server{
-		Addr:    config.App.Address,
-		Handler: s.handler,
-	}
-
 	go func() {
 		log.Debug().Msgf("listening and serving on %s", config.App.Address)
-		err := serv.ListenAndServe()
+		err := s.server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatal().Msg(err.Error())
 		}
@@ -90,23 +89,23 @@ func (s *server) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	err := serv.Shutdown(ctx)
+	err := s.server.Shutdown(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg(err.Error())
-		return
+		log.Error().Err(err).Msg("failed to shutdown http server")
 	}
+	log.Debug().Msg("http server has been shutdown")
 
 	err = s.stopPusherMetricsFn(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg(err.Error())
-		return
+		log.Error().Err(err).Msg("failed to stop metrics pusher")
 	}
 
 	err = s.shutdownTracerExporterFn(ctx)
 	if err != nil {
-		log.Error().Err(err).Msg(err.Error())
-		return
+		log.Error().Err(err).Msg("failed to shutdown TracerProvider")
 	}
 
-	log.Info().Msg("server exited properly")
+	if err == nil {
+		log.Info().Msg("server exited properly")
+	}
 }

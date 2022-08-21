@@ -60,6 +60,7 @@ func InitTracerProvider(otelCollectorURL, serviceName string, insecure bool) Shu
 		cxt, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 		if err := exporter.Shutdown(cxt); err != nil {
+			//log.Debug().Err(err).Msg("failed to shutdown TracerProvider")
 			return err
 		}
 		log.Debug().Msg("tracer exporter has been shutdown")

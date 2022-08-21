@@ -45,10 +45,10 @@ func InitMetricProvider(otelCollectorURL string) StopPusherFunc {
 		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		defer cancel()
 		if err := pusher.Stop(ctx); err != nil {
-			log.Fatal().Err(err).Msg("failed to shutdown TracerProvider")
+			//log.Debug().Err(err).Msg("failed to stop metrics pusher")
 			return err
 		}
-		log.Debug().Msg("pusher metrics has been stopped")
+		log.Debug().Msg("metrics pusher has been stopped")
 		return nil
 	}
 }
