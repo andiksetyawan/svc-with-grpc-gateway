@@ -21,7 +21,7 @@ SERVICE_NAME=svc-with-grpc-gateway
 ADDRESS=:8080
 OTLP_COLLECTOR_URL=localhost:4317
 ```
-
+you can setup environment using .env file or environment variables (OS)
 ## Getting Started
 ## Usage
 
